@@ -1,0 +1,26 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "rollout.fullname" . }}
+  labels:
+    {{- include "rollout.labels" . | nindent 4 }}
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "rollout.fullname" . }}
+  labels:
+    {{- include "rollout.labels" . | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "rollout.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "rollout.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io

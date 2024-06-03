@@ -1,0 +1,21 @@
+version: '3'
+
+vars:
+  TAG: latest
+
+tasks:
+  build:
+    cmds:
+      - go mod tidy
+      - docker build -t rollout:{{.TAG}} .
+      - kind load docker-image rollout:{{.TAG}}
+
+  install:
+    deps: [build]
+    cmds:
+      - helm upgrade -i rollout charts/rollout --set image.tag={{.TAG}} --wait
+      - kubectl rollout restart deploy/rollout
+
+  uninstall:
+    cmds:
+      - helm uninstall rollout --wait
